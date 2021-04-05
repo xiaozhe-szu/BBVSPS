@@ -1,13 +1,13 @@
 This project is developed based on the FISCO BCOS platform. 
 # File directory description
---logs
---ra (The user's key in the schnorr signature)
---src
-----main
-------java/org/fisco/bcos (Core code)
-------resource (Experimental data)
-----test
---trees (Generated merkle tree)
+--logs  
+--ra (The user's key in the schnorr signature)  
+--src  
+----main  
+------java/org/fisco/bcos (Core code)  
+------resource (Experimental data)  
+----test  
+--trees (Generated merkle tree)  
 
 The instructions for using FISCO BCOS are as follows
 
