@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 This project is developed based on the FISCO BCOS platform. 
 # File directory description
 --logs  
@@ -182,3 +183,6 @@ public void deployAndCallHelloWorld() throws Exception {
 }
 ```
 
+=======
+# BBVSPS
+>>>>>>> 6ef43a8165198e99adfd03596bf554bb05f60cd9
