@@ -1,6 +1,15 @@
-![](https://github.com/FISCO-BCOS/FISCO-BCOS/raw/master/docs/images/FISCO_BCOS_Logo.svg?sanitize=true)
+This project is developed based on the FISCO BCOS platform. 
+# File directory description
+--logs  
+--ra                         (The user's key in the schnorr signature)  
+--src  
+----main  
+------java/org/fisco/bcos    (Core code)  
+------resource               (Experimental data)  
+----test  
+--trees                      (Generated merkle tree)  
 
-English / [中文](doc/README_CN.md)
+The instructions for using FISCO BCOS are as follows
 
 # Spring Boot Starter
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
@@ -173,19 +182,3 @@ public void deployAndCallHelloWorld() throws Exception {
 }
 ```
 
-## Code Contribution
-
-- Your contributions are most welcome and appreciated. Please read the [contribution instructions ](CONTRIBUTING.md).
-- If this project is useful to you, please star us on GitHub project page!
-
-## Join Our Community
-
-The FISCO BCOS community is one of the most active open-source blockchain communities in China. It provides long-term technical support for both institutional and individual developers and users of FISCO BCOS. Thousands of technical enthusiasts from numerous industry sectors have joined this community, studying and using FISCO BCOS platform. If you are also interested, you are most welcome to join us for more support and fun.
-
-![](https://media.githubusercontent.com/media/FISCO-BCOS/LargeFiles/master/images/QR_image_en.png)
-
-## Related Links
-
-- For FISCO BCOS project, please check out [FISCO BCOS Documentation](https://fisco-bcos-documentation.readthedocs.io/en/latest/docs/introduction.html)。
-- For Web3SDK project, please check out [Web3SDK Documentation](https://fisco-bcos-documentation.readthedocs.io/en/latest/docs/sdk/sdk.html)。
-- For Spring Boot applications, please check out [Spring Boot](https://spring.io/guides/gs/spring-boot/)。
