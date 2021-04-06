@@ -195,6 +195,8 @@ After execution, the user's key is stored in the ~/BBVSPS/ra directory, and the 
 
 ![ra](https://github.com/xiaozhe-szu/BBVSPS/blob/main/ra.png)
 
+![trees](https://github.com/xiaozhe-szu/BBVSPS/blob/main/trees.png)
+
 =======
 # BBVSPS
 >>>>>>> 6ef43a8165198e99adfd03596bf554bb05f60cd9
