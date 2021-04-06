@@ -92,9 +92,9 @@ $ curl -#LO https://gitee.com/FISCO-BCOS/console/releases/download/v2.7.1/downlo
 $ bash download_console.sh
 $ cd ~/fisco/console
 ```
-**Then, put the Solidity smart contract you want to use into the ~/fisco/console/contracts/solidity directory**
+Then, put the Solidity smart contract you want to use into the ~/fisco/console/contracts/solidity directory  
 
-**Next, generate a java class that calls the smart contract**
+Next, generate a java class that calls the smart contract  
 
 ```
 # Use sol2java.sh to compile all contracts under contracts/solidity to generate bin, abi, and java tool classes.
@@ -119,10 +119,42 @@ When all test cases run successfully, it means that the blockchain is running no
 
 **Note: If you run the demo project in IntelliJ IDEA or Eclipse, please use gradle wrapper mode. In addition, please enable `Annotation Processors` in `Settings` for IntelliJ IDEA.**
 
-### Usage test
-**Store the experimental data as the txt format in the ~/BBVSPS/src/main/resource/business directory. The specific format refers to the table in the paper.**
+### Use the Java SDK to deploy and call smart contracts
+Take the use of java sdk to call the getBlockNumber interface of group 1 to obtain the latest block height of group 1, and deploy and call the HelloWorld contract to group 1 as an example. The corresponding sample code is as follows:  
 
-**Call the java test method. The main test method is deployed under the path ~/BBVSPS/src/test/java/org/fisco/bcos/cloud**
+```java
+public class BcosSDKTest
+{
+    // Get the configuration file path
+    public final String configFile = BcosSDKTest.class.getClassLoader().getResource("config-example.toml").getPath();
+     public void testClient() throws ConfigException {
+           // Initialize BcosSDK
+        BcosSDK sdk =  BcosSDK.build(configFile);
+        // Initialize client for group 1
+        Client client = sdk.getClient(Integer.valueOf(1));
+    
+        // Get the block height of group 1
+        BlockNumber blockNumber = client.getBlockNumber();
+
+        // Deploy HelloWorld contract to group 1
+        CryptoKeyPair cryptoKeyPair = client.getCryptoSuite().getCryptoKeyPair();
+        HelloWorld helloWorld = HelloWorld.deploy(client, cryptoKeyPair);
+
+        // Call the get interface of the HelloWorld contract
+        String getValue = helloWorld.get();
+        
+        // Call the set interface of the HelloWorld contract
+        TransactionReceipt receipt = helloWorld.set("Hello, fisco");
+     }
+}
+```
+
+Deploy the java tool class of the contract just generated according to the deployment and calling example methods of the helloworld contract.
+
+### Usage test
+Store the experimental data as the txt format in the ~/BBVSPS/src/main/resource/business directory. The specific format refers to the table in the paper.  
+
+Call the java test method. The main test method is deployed under the path ~/BBVSPS/src/test/java/org/fisco/bcos/cloud  
 
 ```java
 public void poolFunctionTest() throws Exception {
@@ -159,7 +191,7 @@ public void poolFunctionTest() throws Exception {
      }
 ```
 
-
+After execution, the user's key is stored in the ~/BBVSPS/ra directory, and the root of the generated merkle tree is stored in the ~/BBVSPS/trees directory, named and arranged in chronological order, corresponding to the block height.
 
 =======
 # BBVSPS
