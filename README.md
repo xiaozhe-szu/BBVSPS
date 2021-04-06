@@ -65,12 +65,52 @@ accounts:
 
 A detail description of the SDK configuration for the project, please checkout [ here](https://fisco-bcos-documentation.readthedocs.io/en/latest/docs/sdk/sdk.html#sdk)。
 
+### Introduce java SDK
+Introduce Java SDK in build.gradle
+```
+compile ('org.fisco-bcos.java-sdk:fisco-bcos-java-sdk:2.7.2')
+```
+[Configure SDK license] (https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/docs/sdk/java_sdk/configuration.html#id5) 
+
+An example of copying the SDK certificate to the java sdk is as follows (here it is assumed that the SDK certificate is located in the ~/fisco/nodes/127.0.0.1/sdk directory):
+```
+mkdir -p conf && cp -r ~/fisco/nodes/127.0.0.1/sdk/* conf
+```
+
+### Prepare smart contract
+
+Both console and java-sdk-demo provide tools to generate java tool classes from solidity contracts.  
+**Download console**
+```
+$ mkdir -p ~/fisco && cd ~/fisco
+# Get the console
+$ curl -#LO https://github.com/FISCO-BCOS/console/releases/download/v2.7.1/download_console.sh
+
+# If the above command cannot be executed for a long time due to network problems, please try the following command：
+$ curl -#LO https://gitee.com/FISCO-BCOS/console/releases/download/v2.7.1/download_console.sh
+
+$ bash download_console.sh
+$ cd ~/fisco/console
+```
+**Then, put the Solidity smart contract you want to use into the ~/fisco/console/contracts/solidity directory**
+
+**Next, generate a java class that calls the smart contract**
+
+```
+# Use sol2java.sh to compile all contracts under contracts/solidity to generate bin, abi, and java tool classes.
+# Current directory~/fisco/console
+$ bash sol2java.sh org.com.fisco# The parameter "org.com.fisco" in the above command is the name of the package to which the generated java class belongs.
+# ./sol2java.sh [packageName] [solidityFilePath] [javaCodeOutputDir]
+```
+
+Finally, put the compiled HelloWorld.java into the application. Note: The location in the application must be the same as the package name we set.
+
 ### Run
 
 Compile and run test cases:
 
 ```
-$ cd spring-boot-starter
+$ cd BBVSPS
 $ ./gradlew build
 $ ./gradlew test
 ```
@@ -79,109 +119,47 @@ When all test cases run successfully, it means that the blockchain is running no
 
 **Note: If you run the demo project in IntelliJ IDEA or Eclipse, please use gradle wrapper mode. In addition, please enable `Annotation Processors` in `Settings` for IntelliJ IDEA.**
 
-## Test Case Introduction
+### Usage test
+**Store the experimental data as the txt format in the ~/BBVSPS/src/main/resource/business directory. The specific format refers to the table in the paper.**
 
-The sample project provides test cases for developers to use. The test cases are mainly divided into tests for [Web3j API](https://fisco-bcos-documentation.readthedocs.io/en/latest/docs/sdk/sdk.html#web3j-api), [Precompiled Serveice API](https://fisco-bcos-documentation.readthedocs.io/en/latest/docs/sdk/sdk.html#precompiled-service-api), Solidity contract file to Java contract file, deployment and call contract.
-
-### Web3j API Test
-
-Provide `Web3jApiTest` class to test the Web3j API. The sample test is as follows:
+**Call the java test method. The main test method is deployed under the path ~/BBVSPS/src/test/java/org/fisco/bcos/cloud**
 
 ```java
-@Test
-public void getBlockNumber() throws IOException {
-    BigInteger blockNumber = web3j.getBlockNumber().send().getBlockNumber();
-    System.out.println(blockNumber);
-    assertTrue(blockNumber.compareTo(new BigInteger("0"))>= 0);
-}
+public void poolFunctionTest() throws Exception {
+         pool.initial();          //Initialize the transaction pool and experimental data
+         pool.all_submit();       //Submit data to the trading pool
+         long startTime0 = System.currentTimeMillis();
+         pool.packgeToMerkle();   //Transaction pool data packaging
+         long endTime0 = System.currentTimeMillis();
+         System.out.println("交易打包运行时间:" + (endTime0 - startTime0) + "ms");
+         merkletree tree = pool.merkletrees.get(0);
+         long startTime = System.currentTimeMillis();
+         pool.keyGeneration(tree);      //Production user key
+         long endTime = System.currentTimeMillis();
+         System.out.println("密钥分发运行时间:" + (endTime - startTime) + "ms");
+         long startTime2 = System.currentTimeMillis();
+         pool.groupSigh(tree);          //Aggregate signature
+         long endTime2 = System.currentTimeMillis();
+         pool.checkGroupSigh(tree);     //Verify signature
+         System.out.println("签名运行时间:" + (endTime2 - startTime2) + "ms");
+
+
+         String sigh = pool.sighs.get(tree.date);
+         String contractAddress = "0x15cb63a29ccb6e3f25901d615c2196ddea590d1f";
+
+         Proofsubmit ps = Proofsubmit.load(contractAddress, web3j, credentials, new StaticGasProvider(gasPrice, gasLimit));
+         if (ps != null) {
+             TransactionReceipt receipt1 = ps.proofSubmit(tree.date,tree.root).send();
+
+             System.out.println("receipt1="+receipt1.toString());
+             TransactionReceipt receipt2 = ps.signSubmit(tree.date,sigh).send();
+             System.out.println("receipt2="+receipt2.toString());
+         }//Data packaging on the blockchain
+
+     }
 ```
 
-**Tips:** The `Application` class initializes the Web3j object, which can be used directly in the way where the business code needs it. The usage is as follows:
 
-```
-@Autowired
-private Web3j web3j
-```
-
-### Precompiled Service API Test
-
-Provide `PrecompiledServiceApiTest` class to test the Precompiled Service API。The sample test is as follows:
-
-```java
-@Test
-public void testSystemConfigService() throws Exception {
-    SystemConfigSerivce systemConfigSerivce = new SystemConfigSerivce(web3j, credentials);
-    systemConfigSerivce.setValueByKey("tx_count_limit", "2000");
-    String value = web3j.getSystemConfigByKey("tx_count_limit").send().getSystemConfigByKey();
-    System.out.println(value);
-    assertTrue("2000".equals(value));
-}
-```
-
-### Solidity contract file to Java contract file Test
-
-Provide `SolidityFunctionWrapperGeneratorTest` class to test contract compilation. The sample test is as follows:
-
-```java
-@Test
-public void compileSolFilesToJavaTest() throws IOException {
-    File solFileList = new File("src/test/resources/contract");
-    File[] solFiles = solFileList.listFiles();
-
-    for (File solFile : solFiles) {
-
-        SolidityCompiler.Result res = SolidityCompiler.compile(solFile, true, ABI, BIN, INTERFACE, METADATA);
-        System.out.println("Out: '" + res.output + "'");
-        System.out.println("Err: '" + res.errors + "'");
-        CompilationResult result = CompilationResult.parse(res.output);
-        System.out.println("contractname  " + solFile.getName());
-        Path source = Paths.get(solFile.getPath());
-        String contractname = solFile.getName().split("\\.")[0];
-        CompilationResult.ContractMetadata a = result.getContract(solFile.getName().split("\\.")[0]);
-        System.out.println("abi   " + a.abi);
-        System.out.println("bin   " + a.bin);
-        FileUtils.writeStringToFile(new File("src/test/resources/solidity/" + contractname + ".abi"), a.abi);
-        FileUtils.writeStringToFile(new File("src/test/resources/solidity/" + contractname + ".bin"), a.bin);
-        String binFile;
-        String abiFile;
-        String tempDirPath = new File("src/test/java/").getAbsolutePath();
-        String packageName = "org.fisco.bcos.temp";
-        String filename = contractname;
-        abiFile = "src/test/resources/solidity/" + filename + ".abi";
-        binFile = "src/test/resources/solidity/" + filename + ".bin";
-        SolidityFunctionWrapperGenerator.main(Arrays.asList(
-                "-a", abiFile,
-                "-b", binFile,
-                "-p", packageName,
-                "-o", tempDirPath
-        ).toArray(new String[0]));
-    }
-    System.out.println("generate successfully");
-}
-```
-
-This test case converts all Solidity contract files (`HelloWorld` contract provided by default) in the `src/test/resources/contract` directory to the corresponding `abi` and `bin` files, and save them in the `src/test/resources/solidity` directory. Then convert the `abi` file and the corresponding `bin` file combination into a Java contract file, which is saved in the `src/test/java/org/fisco/bcos/temp` directory. The SDK will use the Java contract file for contract deployment and invocation.
-
-### Deployment and Invocation Contract Test
-
-Provide `ContractTest` class to test deploy and call contracts. The sample test is as follows:
-
-```java
-@Test
-public void deployAndCallHelloWorld() throws Exception {
-    //deploy contract
-    HelloWorld helloWorld = HelloWorld.deploy(web3j, credentials, new StaticGasProvider(gasPrice, gasLimit)).send();
-    if (helloWorld != null) {
-        System.out.println("HelloWorld address is: " + helloWorld.getContractAddress());
-        //call set function
-        helloWorld.set("Hello, World!").send();
-        //call get function
-        String result = helloWorld.get().send();
-        System.out.println(result);
-        assertTrue( "Hello, World!".equals(result));
-    }
-}
-```
 
 =======
 # BBVSPS
