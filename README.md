@@ -191,8 +191,9 @@ public void poolFunctionTest() throws Exception {
      }
 ```
 
-After execution, the user's key is stored in the ~/BBVSPS/ra directory, and the root of the generated merkle tree is stored in the ~/BBVSPS/trees directory, named and arranged in chronological order, corresponding to the block height.
-！[ra](https://github.com/xiaozhe-szu/BBVSPS/blob/main/ra.png)
+After execution, the user's key is stored in the ~/BBVSPS/ra directory, and the root of the generated merkle tree is stored in the ~/BBVSPS/trees directory, named and arranged in chronological order, corresponding to the block height.  
+
+![ra](https://github.com/xiaozhe-szu/BBVSPS/blob/main/ra.png)
 
 =======
 # BBVSPS
