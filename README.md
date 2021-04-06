@@ -197,6 +197,8 @@ After execution, the user's key is stored in the ~/BBVSPS/ra directory, and the 
 
 ![trees](https://github.com/xiaozhe-szu/BBVSPS/blob/main/trees.png)
 
+Blockchain transaction receipts are directly output on the console. Or query through the FISCO BCOS console, and block specific information can also be queried through the FISCO BCOS console. [Refer to here for detailed commands](https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/docs/console/console.html).  
+
 =======
 # BBVSPS
 >>>>>>> 6ef43a8165198e99adfd03596bf554bb05f60cd9
